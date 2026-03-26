@@ -30,32 +30,26 @@ public class TransactionService {
         User sender = this.userService.findUserById(transaction.payer());
         User receiver = this.userService.findUserById(transaction.payee());
 
-        // 1. Validar se a transação pode acontecer (Regras de negócio locais)
         userService.validateTransaction(sender, transaction.value());
 
-        // 2. Consultar o serviço autorizador externo
         boolean isAuthorized = this.authService.authorizeTransaction(sender, transaction.value());
         if (!isAuthorized) {
             throw new Exception("Transação não autorizada pelo serviço externo.");
         }
 
-        // 3. Lógica de "Transferir": tira de um, dá para o outro
         sender.setBalance(sender.getBalance().subtract(transaction.value()));
         receiver.setBalance(receiver.getBalance().add(transaction.value()));
 
-        // 4. Salvar no histórico de transações
         Transaction newTransaction = new Transaction();
         newTransaction.setAmount(transaction.value());
         newTransaction.setSender(sender);
         newTransaction.setReceiver(receiver);
-        newTransaction.setTimesTamp(LocalDateTime.now()); // Note que corrigi para 'setTimestamp'
+        newTransaction.setTimesTamp(LocalDateTime.now());
 
-        // 5. Persistir alterações no banco
         this.repository.save(newTransaction);
         this.userService.saveUser(sender);
         this.userService.saveUser(receiver);
 
-        // 6. Enviar notificação (Opcional no fluxo principal, pode falhar sem dar rollback)
         this.notificationService.sendNotification(sender, "Transação enviada com sucesso");
         this.notificationService.sendNotification(receiver, "Transação recebida com sucesso");
 

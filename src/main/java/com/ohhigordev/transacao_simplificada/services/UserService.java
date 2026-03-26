@@ -12,10 +12,9 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
-
+    @Autowired
     private UserRepository repository;
 
 
@@ -32,6 +31,10 @@ public class UserService {
     public User findUserById(Long id) throws Exception {
         return this.repository.findById(id)
                 .orElseThrow(() -> new Exception("Usuário não encontrado com o ID: " + id));
+    }
+
+    public void saveUser(User user){
+        repository.save(user);
     }
 
     public User createUser(UserDTO data){

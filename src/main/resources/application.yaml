@@ -3,9 +3,9 @@ spring:
     name: transacao-simplificada
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/picpay_db
-    username: admin
-    password: 12345
+    url: jdbc:postgresql://localhost:5433/picpay_db
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
 
   jpa:

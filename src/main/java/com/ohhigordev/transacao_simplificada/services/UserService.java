@@ -6,6 +6,7 @@ import com.ohhigordev.transacao_simplificada.dtos.UserDTO;
 import com.ohhigordev.transacao_simplificada.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,6 +17,9 @@ public class UserService {
 
     @Autowired
     private UserRepository repository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     public void validateTransaction(User sender, BigDecimal amount) throws Exception{
@@ -46,6 +50,10 @@ public class UserService {
         newUser.setPassword(data.password());
         newUser.setEmail(data.email());
         newUser.setDocument(data.document());
+
+        // Criptografando a senha recebida no DTO antes de colocar na entidade
+        newUser.setPassword(passwordEncoder.encode(data.password()));
+
 
         repository.save(newUser);
         return newUser;

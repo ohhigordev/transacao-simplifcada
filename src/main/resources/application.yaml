@@ -16,7 +16,17 @@ spring:
     properties:
       hibernate:
         format_sql: true
+api:
+  url:
+    authorize: https://util.devi.tools/api/v2/authorize
+    notify: https://util.devi.tools/api/v1/notify
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
 
 logging:
   level:

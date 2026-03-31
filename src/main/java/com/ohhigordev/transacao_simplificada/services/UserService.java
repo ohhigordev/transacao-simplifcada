@@ -3,9 +3,11 @@ package com.ohhigordev.transacao_simplificada.services;
 import com.ohhigordev.transacao_simplificada.domain.user.User;
 import com.ohhigordev.transacao_simplificada.domain.user.UserType;
 import com.ohhigordev.transacao_simplificada.dtos.UserDTO;
+import com.ohhigordev.transacao_simplificada.exceptions.InsufficientBalanceException;
+import com.ohhigordev.transacao_simplificada.exceptions.UnauthorizedTransactionException;
+import com.ohhigordev.transacao_simplificada.exceptions.UserNotFoundException;
 import com.ohhigordev.transacao_simplificada.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,28 +15,25 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository repository;
+    private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-
-    public void validateTransaction(User sender, BigDecimal amount) throws Exception{
+    public void validateTransaction(User sender, BigDecimal amount) {
         if (sender.getUserType() == UserType.MERCHANT){
-            throw new Exception("Lojistas não podem realizar transferências");
+            throw new UnauthorizedTransactionException("Lojistas não podem realizar transferências");
         }
 
         if (sender.getBalance().compareTo(amount) < 0){
-            throw new Exception("Saldo insuficiente");
+            throw new InsufficientBalanceException("Saldo insuficiente");
         }
     }
 
-    public User findUserById(Long id) throws Exception {
+    public User findUserById(Long id) {
         return this.repository.findById(id)
-                .orElseThrow(() -> new Exception("Usuário não encontrado com o ID: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o ID: " + id));
     }
 
     public void saveUser(User user){
@@ -47,13 +46,9 @@ public class UserService {
         newUser.setLastName(data.lastName());
         newUser.setBalance(data.balance());
         newUser.setUserType(data.userType());
-        newUser.setPassword(data.password());
+        newUser.setPassword(passwordEncoder.encode(data.password()));
         newUser.setEmail(data.email());
         newUser.setDocument(data.document());
-
-        // Criptografando a senha recebida no DTO antes de colocar na entidade
-        newUser.setPassword(passwordEncoder.encode(data.password()));
-
 
         repository.save(newUser);
         return newUser;

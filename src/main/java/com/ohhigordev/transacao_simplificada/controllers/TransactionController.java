@@ -3,7 +3,7 @@ package com.ohhigordev.transacao_simplificada.controllers;
 import com.ohhigordev.transacao_simplificada.domain.transaction.Transaction;
 import com.ohhigordev.transacao_simplificada.dtos.TransactionDTO;
 import com.ohhigordev.transacao_simplificada.services.TransactionService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/transfer")
+@RequiredArgsConstructor
 public class TransactionController {
 
-    @Autowired
-    private TransactionService transactionService;
+    private final TransactionService transactionService;
 
     @PostMapping
-    public ResponseEntity<Transaction> createTransaction(@RequestBody TransactionDTO transactionDTO)throws Exception{
+    public ResponseEntity<Transaction> createTransaction(@RequestBody TransactionDTO transactionDTO) {
         Transaction newTransaction = this.transactionService.createTransaction(transactionDTO);
         return new ResponseEntity<>(newTransaction, HttpStatus.OK);
     }
